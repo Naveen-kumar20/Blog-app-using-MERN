@@ -5,7 +5,8 @@ import uploadToS3 from '../utils/s3Upload.js'
 
 export const addBlog = async (req, res) => {
     try {
-        const { title, subtitle, category, description, isPublished = false } = req.body;
+        const { title, subTitle, category, description, isPublished = false } = JSON.parse(req.body.blog);
+        
         const imageFile = req.file;
 
         if (!title || !category || !description || !imageFile) {
@@ -17,7 +18,7 @@ export const addBlog = async (req, res) => {
 
         const imageUrl = await uploadToS3(imageFile)
 
-        await Blog.create({ title, subtitle, category, description, isPublished, image: imageUrl })
+        await Blog.create({ title, subTitle, category, description, isPublished, image: imageUrl })
         console.log("Blog added successfully✅");
 
         res.json({
@@ -57,12 +58,9 @@ export const getBlogById = async (req, res) => {
         if (!id || !mongoose.Types.ObjectId.isValid(id)) {
             return res.status(400).json({ success: false, message: 'Invalid blog id.' })
         }
-        const blog = await Blog.findById(id);
+        const blog = await Blog.findOne({_id:  id, isPublished: true});
 
         if (!blog) return res.status(404).json({ success: false, message: 'Blog not found' })
-        
-        // Delete all comments associated with the blog.
-        await Comment.deleteMany({blog: id});
 
 
         res.json({ success: true, blog })
@@ -108,6 +106,9 @@ export const deleteBlog = async (req, res) => {
             })
         }
 
+        // Delete all comments associated with the blog.
+        await Comment.deleteMany({ blog: id });
+
         res.json({ success: true, message: 'Blog deleted successfully.' })
     } catch (error) {
         console.log(error);
@@ -115,27 +116,27 @@ export const deleteBlog = async (req, res) => {
     }
 }
 
-export const addComment = async(req, res)=>{
+export const addComment = async (req, res) => {
     try {
         const { blog, name, content } = req.body;
-        await Comment.create({blog, name, content});
-        res.json({success: true, message: 'Comment added for review.'})
+        await Comment.create({ blog, name, content });
+        res.json({ success: true, message: 'Comment added for review.' })
     } catch (error) {
         console.log(error);
-        res.status(500).json({success: false, message: 'Something went wrong while adding comment.'})
+        res.status(500).json({ success: false, message: 'Something went wrong while adding comment.' })
     }
 }
 
-export const getBlogComments = async(req, res) =>{
+export const getBlogComments = async (req, res) => {
     try {
-        const {blogId} = req.body;
+        const { blogId } = req.body;
         if (!blogId || !mongoose.Types.ObjectId.isValid(blogId)) {
             return res.status(400).json({ success: false, message: 'Invalid blog id.' })
         }
-        const comments = await Comment.find({blog: blogId, isApproved: true}).sort({createdAt: -1});
-        res.json({success: true, comments});
+        const comments = await Comment.find({ blog: blogId, isApproved: true }).sort({ createdAt: -1 });
+        res.json({ success: true, comments });
     } catch (error) {
         console.log(error);
-        res.status(500).json({success: false, message: 'Something went wrong while fetching comments.'})
+        res.status(500).json({ success: false, message: 'Something went wrong while fetching comments.' })
     }
 }

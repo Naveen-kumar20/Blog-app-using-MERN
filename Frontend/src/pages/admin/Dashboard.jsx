@@ -4,6 +4,7 @@ import { RiDraftFill } from "react-icons/ri";
 import { FaNewspaper } from "react-icons/fa6";
 import BlogTableItem from "../../components/admin/BlogTableItem";
 import { dashboard_data } from "../../assets/assets";
+import { useAppContext } from "../../context/AppContext";
 
 function Dashboard() {
 
@@ -14,8 +15,16 @@ function Dashboard() {
     recentBlogs: []
   })
 
-  const fetchDashboardData = ()=>{
-    setDashboardData(dashboard_data)
+  const {axios} = useAppContext();
+
+
+  const fetchDashboardData = async()=>{
+    try {
+      const {data} = await axios.get('/api/admin/dashboard')
+      setDashboardData(data.dashboardData);
+    } catch (error) {
+      toast.error(error.response.data.message)
+    }
   }
 
   useEffect(()=>{
@@ -26,7 +35,7 @@ function Dashboard() {
   return (
     <div className="flex-1 p-4 md:p-10 bg-blue-50/50 overflow-scroll">
       <div className="flex flex-wrap gap-4">
-        <div className="flex items-center gap-4 bg-white p-4 min-w-58 rounded shadow cursor-pointer hover:scale-105 transition-all">
+        <div className="flex items-center gap-4 bg-white p-4 min-w-58 rounded shadow  hover:scale-105 transition-all">
           <FaBlog className="text-2xl"/>
           <div>
             <p className="text-xl font-semibold text-gray-600">{dashboardData.blogs}</p>
@@ -34,7 +43,7 @@ function Dashboard() {
           </div>
         </div>
 
-        <div className="flex items-center gap-4 bg-white p-4 min-w-58 rounded shadow cursor-pointer hover:scale-105 transition-all">
+        <div className="flex items-center gap-4 bg-white p-4 min-w-58 rounded shadow  hover:scale-105 transition-all">
           <FaComments className="text-2xl"/>
           <div>
             <p className="text-xl font-semibold text-gray-600">{dashboardData.comments}</p>
@@ -42,7 +51,7 @@ function Dashboard() {
           </div>
         </div>
         
-        <div className="flex items-center gap-4 bg-white p-4 min-w-58 rounded shadow cursor-pointer hover:scale-105 transition-all">
+        <div className="flex items-center gap-4 bg-white p-4 min-w-58 rounded shadow  hover:scale-105 transition-all">
           <RiDraftFill className="text-2xl"/>
           <div>
             <p className="text-xl font-semibold text-gray-600">{dashboardData.drafts}</p>
@@ -70,7 +79,7 @@ function Dashboard() {
             </thead>
             <tbody>
               {dashboardData.recentBlogs.map((blog, index)=>{
-                return <BlogTableItem key={blog.id} blog={blog} fetchBlogs={dashboardData.fetchBlogs} index={index+1}/>
+                return <BlogTableItem key={blog.id} blog={blog} fetchBlogs={fetchDashboardData} index={index+1}/>
               })}
             </tbody>
           </table>

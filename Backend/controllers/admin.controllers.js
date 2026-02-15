@@ -1,7 +1,8 @@
 import jwt from 'jsonwebtoken'
 import mongoose from 'mongoose'
-import Blog from '../models/blog.models';
-import Comment from '../models/comment.models';
+import Blog from '../models/blog.models.js';
+import Comment from '../models/comment.models.js';
+import generateWithGemini from '../configs/gemini.js';
 
 const jwtSecret = process.env.JWT_SECRET;
 
@@ -145,5 +146,16 @@ export const approveCommentById = async(req, res)=>{
             success: false,
             message: 'Internal server error.'
         })
+    }
+}
+
+export const generateContent = async(req, res)=>{
+    try {
+        const {prompt} = req.body;
+        const geminiResultContent = await generateWithGemini(prompt + 'Generate a blog content for this topic in simple text format.')
+        res.json({success: true, geminiResultContent})
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({success: false, message: 'Something went wrong, while generating content.'})
     }
 }

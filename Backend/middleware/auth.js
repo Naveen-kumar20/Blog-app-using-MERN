@@ -13,7 +13,7 @@ const auth = async(req, res, next)=>{
         console.log(error);
         res.status(401).json({
             success: false,
-            message: 'Invalid token'
+            message: 'Invalid token, login again.'
         })
         
     }

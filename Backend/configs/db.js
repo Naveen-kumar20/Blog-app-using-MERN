@@ -4,10 +4,10 @@ dns.setServers(['8.8.8.8', '8.8.4.4']);  // Force Google DNS in Node.js
 
 const connectDB = async ()=>{
     try {
-        await mongoose.connect(`${process.env.MONGODB_URI}/heartNoteBlogApp`) 
         mongoose.connection.on('connected', ()=>{
             console.log("Database connected.");
         })
+        await mongoose.connect(`${process.env.MONGODB_URI}/heartNoteBlogApp`) 
     } catch (error) {
         console.log(error.message);
     }
