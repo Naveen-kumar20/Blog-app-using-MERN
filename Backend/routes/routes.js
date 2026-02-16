@@ -3,6 +3,7 @@ import { adminLogin, approveCommentById, deleteCommentById, generateContent, get
 import { addBlog, addComment, deleteBlog, getAllBlogs, getBlogById, getBlogComments, togglePublish } from '../controllers/blog.controllers.js';
 import upload from '../middleware/multer.js';
 import auth from '../middleware/auth.js';
+import { subscribeToNewsletter } from '../controllers/subscribe.controllers.js';
 
 const router = express.Router();
 
@@ -13,6 +14,7 @@ router.get('/admin/blogs', auth, getAllBlogsAdmin);
 router.delete('/admin/comment/:id', auth, deleteCommentById);
 router.post('/admin/approve-comment', auth, approveCommentById);
 router.get('/admin/dashboard', auth, getDashboard);
+router.post('/admin/generate', auth, generateContent)
 
 
 
@@ -25,6 +27,7 @@ router.delete('/blogs/:id', auth, deleteBlog);
 router.post('/add-comment', addComment);
 router.post('/comments', getBlogComments);
 
-router.post('/admin/generate', auth, generateContent)
+// subscribe to newsletter
+router.post('/subscribe', subscribeToNewsletter)
 
 export default router;

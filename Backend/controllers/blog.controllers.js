@@ -1,12 +1,14 @@
 import mongoose from 'mongoose';
 import Blog from '../models/blog.models.js';
 import Comment from '../models/comment.models.js';
+import Subscriber from '../models/subscriber.model.js'
 import uploadToS3 from '../utils/s3Upload.js'
+import { sendNewBlogEmail } from '../utils/nodemailer.js';
 
 export const addBlog = async (req, res) => {
     try {
         const { title, subTitle, category, description, isPublished = false } = JSON.parse(req.body.blog);
-        
+
         const imageFile = req.file;
 
         if (!title || !category || !description || !imageFile) {
@@ -18,8 +20,17 @@ export const addBlog = async (req, res) => {
 
         const imageUrl = await uploadToS3(imageFile)
 
-        await Blog.create({ title, subTitle, category, description, isPublished, image: imageUrl })
+        const blog = await Blog.create({ title, subTitle, category, description, isPublished, image: imageUrl })
         console.log("Blog added successfully✅");
+
+        const subscribers = await Subscriber.find()
+
+        const allEmails = subscribers.map((s) => s.email)
+
+        if (allEmails.length > 0) {
+            await sendNewBlogEmail(allEmails, blog);
+            console.log("Email for blog alert sent to subscribers.✅")
+        }
 
         res.json({
             success: true,
@@ -58,7 +69,7 @@ export const getBlogById = async (req, res) => {
         if (!id || !mongoose.Types.ObjectId.isValid(id)) {
             return res.status(400).json({ success: false, message: 'Invalid blog id.' })
         }
-        const blog = await Blog.findOne({_id:  id, isPublished: true});
+        const blog = await Blog.findOne({ _id: id, isPublished: true });
 
         if (!blog) return res.status(404).json({ success: false, message: 'Blog not found' })
 

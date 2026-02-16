@@ -152,7 +152,9 @@ export const approveCommentById = async(req, res)=>{
 export const generateContent = async(req, res)=>{
     try {
         const {prompt} = req.body;
+        console.log("Generating content with AI...🟡")
         const geminiResultContent = await generateWithGemini(prompt + 'Generate a blog content for this topic in simple text format.')
+        console.log("AI generation successfull.✅")
         res.json({success: true, geminiResultContent})
     } catch (error) {
         console.log(error);
