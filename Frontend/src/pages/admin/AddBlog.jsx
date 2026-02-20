@@ -4,7 +4,7 @@ import Quill from 'quill'
 import { blogCategories } from '../../assets/assets'
 import { useAppContext } from '../../context/AppContext'
 import toast from 'react-hot-toast'
-import {parse} from 'marked'
+import { parse } from 'marked'
 
 function AddBlog() {
 
@@ -26,12 +26,18 @@ function AddBlog() {
     try {
       setLoading(true)
       const { data } = await axios.post('/api/admin/generate', { prompt: title })
-
+      
       quillRef.current.root.innerHTML = parse(data.geminiResultContent)
 
     } catch (error) {
-      toast.error(error.response.data.message)
-    }finally{
+      if (error.response?.data?.message) {
+        console.log(error);
+
+        toast.error(error.response.data.message)
+      } else {
+        toast.error('Error generating content. Please try again.')
+      }
+    } finally {
       setLoading(false)
     }
   }

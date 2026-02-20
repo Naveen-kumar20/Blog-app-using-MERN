@@ -4,6 +4,7 @@ import { addBlog, addComment, deleteBlog, getAllBlogs, getBlogById, getBlogComme
 import upload from '../middleware/multer.js';
 import auth from '../middleware/auth.js';
 import { subscribeToNewsletter } from '../controllers/subscribe.controllers.js';
+import { createOrder, verifyPayment } from '../controllers/razorpay.controllers.js';
 
 const router = express.Router();
 
@@ -29,5 +30,9 @@ router.post('/comments', getBlogComments);
 
 // subscribe to newsletter
 router.post('/subscribe', subscribeToNewsletter)
+
+// Payment route
+router.post('/payment/create-order', createOrder)
+router.post('/payment/verify-payment', verifyPayment)
 
 export default router;
